@@ -2,6 +2,7 @@
   --paper:#F2ECDF; --paper2:#F9F5EB; --ink:#1D1A15; --ink2:#4C463B; --ink3:#7A7264; --rule:#CDC3AE; --rule2:#DFD7C6;
   --serif:"Plex Serif","Atlas Greek",Georgia,serif; --mono:"Plex Mono","Atlas Greek",ui-monospace,monospace;
   --panel:492px; --accent:#1D1A15;
+  --listw:480px; --colx:max(0px,calc((100vw - var(--listw)) / 2));
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;font-kerning:normal;-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -76,7 +77,6 @@ body.nocross .edge.cross{opacity:0;pointer-events:none}
 .passed .starbtn .passx{display:inline;fill:none;stroke:#9A2F22;stroke-width:1.4;opacity:1}
 .sharecount{font-family:var(--mono);font-size:10px;font-weight:700;fill:var(--ink2)}
 .mark{stroke-width:1.25}
-.mark.worn{}
 .mark.fresh{fill:var(--paper2)}
 .starbtn path{fill:transparent;stroke:var(--ink2);stroke-width:.9;opacity:.75;transition:opacity .2s}
 .starbtn:hover path{opacity:1}
@@ -277,29 +277,38 @@ body.toast-gap:not(.panel-open) #toast button{display:block;padding:0}
 #toast[hidden]{display:none}
 #toast button{color:var(--paper2);text-decoration:underline;text-underline-offset:3px;font-weight:700;min-height:30px;padding:0 4px}
 
-/* phone */
+/* list layout: up to and including 1100 px the tree map would shrink its words below 9 px, so the page shows the list with the bottom card sheet. Wider than the list column (--listw) the list, header, sheet and zoom share one centred column. */
 /* Too little room in the header: the sentence goes under it. */
-@media (max-width:1359px) and (min-width:761px){
+@media (max-width:1359px) and (min-width:1101px){
   #lede{position:fixed;left:14px;right:14px;top:66px;max-width:640px;padding:3px 8px}
 }
 /* The sentence stays inside the header band at three lines. */
 @media (min-width:1360px) and (max-width:1500px){
   .pub #searchwrap{flex-basis:260px}
 }
-@media (max-width:900px) and (min-width:761px){
-  .tool .lab{display:none}
-  #searchwrap{flex:1 1 200px}
+/* With a card open the header tools stay reachable: the header ends where the card begins and the words leave the tool buttons. */
+@media (min-width:1101px){
+  body.panel-open #bar{right:calc(var(--panel) + 14px)}
+  body.panel-open .tool .lab{display:none}
 }
-@media (max-width:760px){
+@media (min-width:1101px) and (max-width:1559px){
+  body.panel-open #bar{gap:10px}
+  body.panel-open #searchwrap{flex:1 1 150px;min-width:100px}
+  body.panel-open #results{min-width:300px}
+  body.panel-open .title{flex:none}
+  body.panel-open .t1{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.panel-open .t2{display:none}
+}
+@media (max-width:1100px){
   #frame{display:none}
-  #bar{left:0;right:0;top:0;height:50px;padding:0 6px 0 10px;background:var(--paper2);border-bottom:1px solid var(--ink);gap:4px}
+  #bar{left:0;right:0;top:0;height:50px;padding:0 calc(var(--colx) + 6px) 0 calc(var(--colx) + 10px);background:var(--paper2);border-bottom:1px solid var(--ink);gap:4px}
   .title{border:0;outline:0;padding:0;background:none;flex:1;min-width:0;min-height:44px;justify-content:center}
   .t1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .t2{font-size:9.4px;white-space:nowrap}
-  #searchwrap{position:fixed;left:0;right:0;top:50px;height:48px;border:0;border-bottom:1px solid var(--ink);display:none;z-index:7;padding:0 12px;flex:none;min-width:0}
+  #searchwrap{position:fixed;left:0;right:0;top:50px;height:48px;border:0;border-bottom:1px solid var(--ink);display:none;z-index:7;padding:0 calc(var(--colx) + 12px);flex:none;min-width:0}
   body.searching #searchwrap{display:flex}
   #search{font-size:16px}
-  #results{top:48px;left:0;right:0;border-left:0;border-right:0;max-height:calc(100dvh - 100px)}
+  #results{top:48px;left:var(--colx);right:var(--colx);border-left:0;border-right:0;max-height:calc(100dvh - 100px)}
   .only-phone{display:flex}
   #tools{gap:0;margin:0}
   .tool{width:44px;height:44px;padding:0;justify-content:center;background:none;border:0}
@@ -310,7 +319,7 @@ body.toast-gap:not(.panel-open) #toast button{display:block;padding:0}
   body.at-fit #zoom{display:none}
   /* The search bar lies over the sentence; visibility keeps its text measurable for a language switch. */
   body.searching #ledeg{visibility:hidden}
-  #reset-layout{left:58px;right:auto;bottom:calc(6px + env(safe-area-inset-bottom));height:44px}
+  #reset-layout{left:calc(var(--colx) + 58px);right:auto;bottom:calc(6px + env(safe-area-inset-bottom));height:44px}
   body.panel-open #reset-layout{display:none}
   #lede{display:none}
   #panel-back{left:6px;top:0;height:38px;max-width:calc(50% - 36px);border:0;background:var(--paper2);font-size:14px;padding:0 6px}
@@ -323,11 +332,11 @@ body.toast-gap:not(.panel-open) #toast button{display:block;padding:0}
   .sumrow dt,.sumrow dd{display:inline}
   .sumrow dt{font-size:14px}
   .sumrow dt::after{content:":\00a0"}
-  #zoom{left:2px;right:auto;bottom:calc(6px + env(safe-area-inset-bottom));flex-direction:row}
+  #zoom{left:calc(var(--colx) + 2px);right:auto;bottom:calc(6px + env(safe-area-inset-bottom));flex-direction:row}
   #zoom button{width:44px;height:44px}
   #zoom button+button{border-top:0;border-left:1px solid var(--rule)}
   body.panel-open #zoom{display:none}
-  #panel{left:0;right:0;top:auto;bottom:0;width:100%;height:var(--sheet,58dvh);border-left:0;border-top:1px solid var(--ink);box-shadow:0 -4px 0 -3px var(--ink);transition:transform .32s cubic-bezier(.2,.7,.2,1),height .22s ease}
+  #panel{left:var(--colx);right:var(--colx);top:auto;bottom:0;width:auto;height:var(--sheet,58dvh);border-left:0;border-top:1px solid var(--ink);box-shadow:0 -4px 0 -3px var(--ink);transition:transform .32s cubic-bezier(.2,.7,.2,1),height .22s ease}
   #panel[hidden]{transform:translateY(106%)}
   #panel::before{display:none}
   #grip{display:block;position:absolute;left:0;right:0;top:0;height:40px;touch-action:none;cursor:ns-resize;z-index:2;background:var(--paper2);border-bottom:1px solid var(--rule2)}
@@ -343,6 +352,11 @@ body.toast-gap:not(.panel-open) #toast button{display:block;padding:0}
   .selitem .x{width:44px;height:44px}
   .plain{min-height:44px}
 }
+/* Wider than the column the results box and the sheet show their sides. */
+@media (max-width:1100px) and (min-width:481px){
+  #results{border-left:1px solid var(--ink);border-right:1px solid var(--ink)}
+  #panel{border-left:1px solid var(--ink);border-right:1px solid var(--ink)}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 .small.pend{margin:6px 0 2px;color:var(--ink2)}
@@ -355,7 +369,7 @@ body.toast-gap:not(.panel-open) #toast button{display:block;padding:0}
 #panel-back{max-width:calc(100% - 130px)}
 .giscus-slot{min-height:20px}
 .giscus-slot .giscus{width:100%}
-@media(max-width:760px){.tool.langbtn{width:44px}#panel-lang{display:none}#panel-back{max-width:calc(100% - 80px)}}
+@media(max-width:1100px){.tool.langbtn{width:44px}#panel-lang{display:none}#panel-back{max-width:calc(100% - 80px)}}
 /* The public legend holds one list: a second column would stay empty. Open, it sits under the header, in the gap between the wings, where it hides no label. */
 .pub #legend:not(.min){width:260px;grid-template-columns:1fr;bottom:auto;top:72px}
 .pub #legend-copy{grid-template-columns:1fr}

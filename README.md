@@ -1,5 +1,7 @@
 # Atlas of propaganda techniques
 
+Live at https://botfather-dev.github.io/propaganda-atlas/
+
 An interactive map of propaganda techniques and documented cases. Each card links its claims to sources and shows what the available evidence can and cannot establish.
 
 ## Reading a card

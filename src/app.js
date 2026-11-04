@@ -80,6 +80,12 @@ setData();
 
 /* ------- geometry ------- */
 var G={FX:96,FW:158,TX:304,TL:206,PX:554,ROW:23.5,TMIN:38,TGAP:12,FGAP:18,STAR:36};
+/* Up to and including this width the page shows the list with the bottom card sheet; above it, the tree map. */
+var LIST_MAX=1100,LISTW=480;
+function listMode(){return innerWidth<=LIST_MAX}
+/* The list is one column: its tinted boxes span PH.W-10 design units. Narrow windows fill the width; wider ones centre a column LISTW px wide, the width of the card sheet. */
+function listK(){return Math.max(.885,Math.min(LISTW,innerWidth-14)/(PH.W-10))}
+function listX(k){return Math.max(6,Math.round((innerWidth-(PH.W-10)*k)/2-4*k))}
 var PH={W:440,RX:12,FX:20,TX:46,PX:74,RH:30,FH:56,TH:50,PH_:50,STARX:408,STAR:50};
 
 function marker(fid,color){
@@ -109,7 +115,7 @@ function mix(hex,a){var P=[242,236,223],r=[];for(var i=0;i<3;i++){var v=parseInt
 function wrap2(s,max){if(s.length<=max)return[s];var w=s.split(' '),best=null;for(var i=1;i<w.length;i++){var a=w.slice(0,i).join(' '),b=w.slice(i).join(' '),m=Math.max(a.length,b.length);if(!best||m<best.m)best={m:m,a:a,b:b}}return best?[best.a,best.b]:[s]}
 
 function buildScene(){
-  S.mode=innerWidth<=760?'phone':'desk';
+  S.mode=listMode()?'phone':'desk';
   document.body.classList.toggle('phone',S.mode==='phone');
   gE.textContent='';gN.textContent='';gG.textContent='';gT.textContent='';N={};E=[];Terr={};
   loadOffsets();
@@ -491,6 +497,9 @@ function placeLegend(c){
   if(!l||!n||S.mode==='phone'||!panel.hidden)return;
   var rx=c.x+(n.tx==null?n.x:n.tx)*c.k;
   l.style.left=Math.max(14,Math.min(innerWidth-l.offsetWidth-14,Math.round(rx-l.offsetWidth/2)))+'px';
+  /* Open, the legend starts below the sentence when that sits under the header; a closed one has no heading to hide. */
+  var ld=$('#lede').getBoundingClientRect();
+  l.style.top=!l.classList.contains('min')&&ld.height&&ld.bottom+8>72?Math.ceil(ld.bottom+8)+'px':'';
 }
 function setLegend(min){
   var l=$('#legend'),b=$('#legmin');
@@ -518,7 +527,7 @@ function clampCam(c){
 function camMoved(){document.body.classList.remove('at-fit')}
 function fit(anim){
   var ph=S.mode==='phone',c=camFor(allIds(),ph?1.1:1.3,ph?.885:null);
-  if(ph){var i=insets();c.x=(innerWidth-PH.W*c.k)/2+ (PH.W*c.k-(innerWidth))/2 +6;c.y=i.t+(14+ledeH)*c.k}
+  if(ph){var i=insets();c.k=listK();c.x=listX(c.k);c.y=i.t+(14+ledeH)*c.k}
   document.body.classList.add('at-fit');
   placeLegend(c);setToastGap(c);
   if(anim===false){S.cam=c;applyCam()}else animCam(c);
@@ -606,8 +615,8 @@ function openNode(id,opts){
     if(Tech[id])focusIds=[id].concat(Tech[id].proofs);
     if(Proof[id])focusIds=[id,Object.keys(S.expanded)[0]];
     if(Fam[id])focusIds=[id].concat(D.techniques.filter(function(t){return t.family===id}).map(function(t){return t.id}));
-    var c=camFor(focusIds,1,.885),i=insets();
-    c.x=(innerWidth-PH.W*c.k)/2+(PH.W*c.k-innerWidth)/2+6;
+    var i=insets(),c={k:listK()};
+    c.x=listX(c.k);
     var B=bboxOf(focusIds);c.y=i.t+8-B.t*c.k;
     animCam(c);
   }else{
@@ -620,7 +629,7 @@ function openNode(id,opts){
 }
 function closePanel(){
   navPush({kind:'map',id:null});
-  panel.hidden=true;document.body.classList.remove('panel-open');
+  panel.hidden=true;document.body.classList.remove('panel-open');fitSearch();
   S.panel=null;S.focus=null;docTitle();
   if(S.mode==='phone')S.expanded={};
   layout(true);applyClasses();markTools();updateBack();
@@ -632,7 +641,7 @@ function openPanel(p){
   S.panel=p;docTitle();
   var ph=S.mode==='phone';
   if(ph){var longTech=p.kind==='card'&&Tech[p.id]&&Tech[p.id].proofs.length>8;document.documentElement.style.setProperty('--sheet',longTech?'36dvh':p.kind==='card'?'56dvh':'70dvh')}
-  panel.hidden=false;document.body.classList.add('panel-open');
+  panel.hidden=false;document.body.classList.add('panel-open');fitSearch();
   renderPanel();
   pbody.scrollTop=0;
   markTools();updateBack();
@@ -1039,7 +1048,7 @@ function runSearch(q){
   afterFilter();
 }
 var LAYOUT='atlas-propaganda-layout-v1';
-function loadOffsets(){var m=innerWidth<=760?'phone':'desk';S.off={};try{var v=JSON.parse(localStorage.getItem(LAYOUT)||'{}');S.off=v[m]||{}}catch(e){}markReset()}
+function loadOffsets(){var m=listMode()?'phone':'desk';S.off={};try{var v=JSON.parse(localStorage.getItem(LAYOUT)||'{}');S.off=v[m]||{}}catch(e){}markReset()}
 function saveOffsets(){var m=S.mode;try{var v=JSON.parse(localStorage.getItem(LAYOUT)||'{}');v[m]=S.off;localStorage.setItem(LAYOUT,JSON.stringify(v))}catch(e){}markReset()}
 function markReset(){var b=$('#reset-layout');if(b)b.hidden=!Object.keys(S.off).length}
 var relayoutT=0;
@@ -1254,13 +1263,25 @@ function chrome(){
   document.documentElement.lang=LANG;
   docTitle();
   CHROME.forEach(function(c){var e=$(c[0]);if(!e)return;if(c[1])e.setAttribute(c[1],_(c[2]));else e.textContent=_(c[2])});
-  var small=innerWidth<=760;
+  var small=listMode();
   $('.t1').textContent=small?_('Атлас пропаганди'):_('Атлас прийомів пропаганди');
   $('#titlecount').textContent=D.techniques.length+' '+plural(D.techniques.length,'прийом','прийоми','прийомів')+' · '+D.proofs.length+' '+_('доказів')+(small?'':' · '+D.families.length+' '+_('родин'));
   ['#btn-lang','#panel-lang'].forEach(function(q){
     var lb=$(q);lb.hidden=!HAS_EN;lb.textContent=LANG==='en'?'УКР':'EN';
     lb.setAttribute('aria-label',LANG==='en'?'Українською':'In English');
   });
+  fitSearch();
+}
+/* With a card open the header is shorter than the card; a search box too narrow for its prompt shows the short word instead of a cut phrase. */
+var fitCtx=null;
+function fitSearch(){
+  var s=$('#search'),full=_('Пошук по всьому тексту');
+  if(S.mode!=='phone'&&s.clientWidth>0){
+    var cs=getComputedStyle(s);fitCtx=fitCtx||document.createElement('canvas').getContext('2d');
+    fitCtx.font=cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily;
+    if(fitCtx.measureText(full).width>s.clientWidth-2)full=_('Пошук');
+  }
+  s.setAttribute('placeholder',full);
 }
 function buildLegend(){
   $('#legend').innerHTML='<button id="legmin" type="button"></button>'+legendHTML();
@@ -1270,11 +1291,12 @@ function buildLegend(){
 function setLang(l){
   LANG=l;
   try{localStorage.setItem(LANGKEY,l)}catch(e){}
-  var min=$('#legend').classList.contains('min'),keep=S.panel||S.focus;
+  var min=$('#legend').classList.contains('min'),keep=S.panel||S.focus,atFit=document.body.classList.contains('at-fit');
   setData();chrome();buildLegend();buildScene();setLegend(min);
   if(S.panel)rerenderKeep();
   updateBack();
-  if(!keep)fit(false);
+  /* On the bare map the zoom and pan stay; only the whole-map view is fitted again, since its words changed length. */
+  if(!keep){if(atFit)fit(false);else{applyCam();setToastGap(S.cam)}}
   var sv=$('#search');if(sv&&sv.value.trim().length>1)runSearch(sv.value);
 }
 ['#btn-lang','#panel-lang'].forEach(function(q){$(q).addEventListener('click',function(){setLang(LANG==='en'?'uk':'en')})});
@@ -1348,9 +1370,9 @@ document.addEventListener('change',function(e){
 
 var rsT=0;
 addEventListener('resize',function(){clearTimeout(rsT);rsT=setTimeout(function(){
-  var mode=innerWidth<=760?'phone':'desk';
-  if(mode!==S.mode){buildScene();if(S.panel)renderPanel()}
-  fit(false);
+  var mode=listMode()?'phone':'desk';
+  if(mode!==S.mode){chrome();buildScene();if(S.panel)renderPanel()}
+  fit(false);fitSearch();
 },120)});
 
 /* ------- start ------- */
