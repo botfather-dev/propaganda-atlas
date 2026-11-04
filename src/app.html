@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Атлас прийомів пропаганди</title>
+<style>
+/*CSS*/
+</style>
+</head>
+<body>
+<header id="bar">
+  <button id="titlebtn" class="title" type="button" aria-label="Про карту">
+    <span class="t1">Атлас прийомів пропаганди</span>
+    <span class="t2" id="titlecount"></span>
+  </button>
+  <div id="searchwrap">
+    <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>
+    <input id="search" type="search" placeholder="Пошук по всьому тексту" aria-label="Пошук по всьому тексту" autocomplete="off" spellcheck="false">
+    <div id="results" role="listbox" hidden></div>
+  </div>
+  <p id="lede" hidden></p>
+  <nav id="tools">
+    <button class="tool langbtn" id="btn-lang" type="button" hidden></button>
+    <button class="tool only-phone" id="btn-search" type="button" aria-label="Пошук"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg></button>
+    <button class="tool" id="btn-filter" type="button" aria-label="Фільтри"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M6 10h8M8.5 15h3"/></svg><span class="lab">Фільтри</span><span class="cnt" id="filtercount" hidden></span></button>
+    <button class="tool" id="btn-sel" type="button" aria-label="Мій вибір"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.8l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L2.800 8.100l5-.7z"/></svg><span class="lab">Мій вибір</span><span class="cnt" id="selcount" hidden></span></button>
+    <button class="tool" id="btn-about" type="button" aria-label="Про карту"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5M10 6v.6"/></svg><span class="lab">Про карту</span></button>
+  </nav>
+</header>
+
+<svg id="map" role="application" aria-label="Карта прийомів пропаганди та їхніх доказів" xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs"></defs>
+  <g id="world">
+    <g id="terr"></g>
+    <g id="grat"></g>
+    <g id="edges"></g>
+    <g id="nodes"></g>
+  </g>
+</svg>
+<div id="frame" aria-hidden="true"></div>
+
+<section id="legend" aria-label="Умовні позначення"></section>
+
+<div id="zoom" role="group" aria-label="Масштаб">
+  <button type="button" id="z-in" aria-label="Наблизити">+</button>
+  <button type="button" id="z-out" aria-label="Віддалити">&#8722;</button>
+  <button type="button" id="z-fit" aria-label="Показати всю карту"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+</div>
+
+<button id="reset-layout" type="button" hidden>Скинути розташування</button>
+
+<aside id="panel" aria-live="polite" hidden>
+  <div id="grip" aria-hidden="true"></div>
+  <button id="panel-back" type="button" hidden></button>
+  <button id="panel-lang" class="langbtn" type="button" hidden></button>
+  <button id="panel-close" type="button" aria-label="Закрити">
+    <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+  </button>
+  <div id="panel-body" tabindex="-1"></div>
+</aside>
+<div id="toast" role="status" hidden></div>
+<script id="atlas-data" type="application/json">/*DATA*/null</script>
+<script id="atlas-en" type="application/json">/*EN*/{}</script>
+<script>
+/*JS*/
+</script>
+</body>
+</html>
